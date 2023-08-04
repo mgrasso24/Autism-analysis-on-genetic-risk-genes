@@ -1,0 +1,63 @@
+# Install and load the required libraries
+# This code was from chatGPT 
+install.packages("ggplot2")
+install.packages("ggrepel")
+library(ggplot2)
+library(ggrepel)
+
+# Assuming you have loaded the datasets for known genes and random genes
+# Replace "KnownGenes_cell_type" and "RandomGenes_cell_type" with your actual datasets
+
+# Step 2: Perform PCA on both datasets
+known_genes_pca <- prcomp(KnownGenes_cell_type[, -1], scale. = TRUE)
+random_genes_pca <- prcomp(RandomGenes_cell_type[, -1], scale. = TRUE)
+
+# Step 3: Plot the PCA results
+# Combine PCA results with gene names
+known_genes_pca_df <- data.frame(KnownGenes_cell_type$gene, known_genes_pca$x)
+random_genes_pca_df <- data.frame(RandomGenes_cell_type$gene, random_genes_pca$x)
+
+# Plot PCA results for known genes
+ggplot(known_genes_pca_df, aes(x = PC1, y = PC2, label = known_genes_pca_df$KnownGenes_cell_type.gene)) +
+  geom_point() +
+  geom_text_repel(aes(label = known_genes_pca_df$KnownGenes_cell_type.gene), box.padding = 0.5, segment.color = 'grey50', size = 3) +
+  labs(title = "PCA Plot for Known Genes",
+       x = paste("PC1 (", round(known_genes_pca$sdev[1] * 100, 2), "%)", sep = ""),
+       y = paste("PC2 (", round(known_genes_pca$sdev[2] * 100, 2), "%)", sep = "")) +
+  theme_minimal()
+
+# Plot PCA results for random genes
+ggplot(random_genes_pca_df, aes(x = PC1, y = PC2, label = random_genes_pca_df$RandomGenes_cell_type.gene)) +
+  geom_point() +
+  geom_text_repel(aes(label = random_genes_pca_df$RandomGenes_cell_type.gene), box.padding = 0.5, segment.color = 'grey50', size = 3) +
+  labs(title = "PCA Plot for Random Genes",
+       x = paste("PC1 (", round(random_genes_pca$sdev[1] * 100, 2), "%)", sep = ""),
+       y = paste("PC2 (", round(random_genes_pca$sdev[2] * 100, 2), "%)", sep = "")) +
+  theme_minimal()
+
+
+
+#same graph 
+
+# Assuming you have loaded the datasets for known genes and random genes
+# Replace "KnownGenes_cell_type" and "RandomGenes_cell_type" with your actual datasets
+
+# Step 2: Perform PCA on both datasets
+known_genes_pca <- prcomp(KnownGenes_cell_type[, -1], scale. = TRUE)
+random_genes_pca <- prcomp(RandomGenes_cell_type[, -1], scale. = TRUE)
+
+# Step 3: Combine PCA results with gene names and create a new column "GeneType" to differentiate between known and random genes
+known_genes_pca_df <- data.frame(gene = KnownGenes_cell_type$gene, known_genes_pca$x, GeneType = "Known Genes")
+random_genes_pca_df <- data.frame(gene = RandomGenes_cell_type$gene, random_genes_pca$x, GeneType = "Random Genes")
+
+# Combine the data frames
+combined_pca_df <- rbind(known_genes_pca_df, random_genes_pca_df)
+
+# Plot PCA results for both known and random genes with limited max.overlaps
+ggplot(combined_pca_df, aes(x = PC1, y = PC2, label = gene, color = GeneType)) +
+  geom_point() +
+  geom_text_repel(aes(label = gene), box.padding = 0.5, segment.color = 'grey50', size = 3, max.overlaps = 5) +
+  labs(title = "PCA Plot for Known and Random Genes",
+       x = paste("PC1 (", round(known_genes_pca$sdev[1] * 100, 2), "%)", sep = ""),
+       y = paste("PC2 (", round(known_genes_pca$sdev[2] * 100, 2), "%)", sep = "")) +
+  theme_minimal()
